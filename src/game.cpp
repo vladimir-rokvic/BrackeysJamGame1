@@ -45,6 +45,10 @@ Game::Game() {
 }
 
 void Game::loop() {
+	player.update();
+}
+
+void Game::process() {
 	player.input();
 }
 

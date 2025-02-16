@@ -10,10 +10,13 @@ class Player {
 private:
 	int x,y;
 	int w,h;
+	int num_jumps;
 	SDL_Texture *texture;
 	PlayerDirection direction;
 	const Uint8 *keys;
 	Uint32 items[13];
+	int hspeed;
+	int vspeed;
 
 public:
 	Player();
@@ -21,7 +24,10 @@ public:
 	~Player();
 	void draw(SDL_Renderer *renderer);
 	void input();
+	void update();
 	void setTexture(SDL_Texture *texture);
+	void setY(int num);
+	void setX(int num);
 	void setXY(int x, int y);
 };
 

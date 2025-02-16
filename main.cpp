@@ -11,7 +11,8 @@ int main(int argc, char* argv[]){
 					run = false;
 				}break;
 				default:{
-				}break;
+					game.process();
+				}
 			}
 		game.loop();
 		game.render();
