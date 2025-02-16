@@ -1,8 +1,5 @@
 #include "player.hpp"
 #include "item.hpp"
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_scancode.h>
-#include <cstring>
 
 #define PLAYER_SPEED 5
 
@@ -41,7 +38,8 @@ Player::Player(int x, int y, SDL_Texture *texture) {
 void Player::draw(SDL_Renderer *renderer) {
 	SDL_Rect src = {this->w * this->direction,0,this->w, this->h};
 	SDL_Rect dst = {this->x, this->y, this->w*4, this->h*4};
-	if(SDL_RenderCopy(renderer, this->texture, &src, &dst) < 0) {
+	if(SDL_RenderCopyEx(renderer, this->texture, &src, &dst,
+					 0, NULL, SDL_FLIP_VERTICAL) < 0) {
 		fprintf(stderr, "Error drawing player: %s", SDL_GetError());
 	}
 }
