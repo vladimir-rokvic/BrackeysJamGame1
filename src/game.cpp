@@ -22,7 +22,7 @@ Game::Game() {
 	//END OF IMIT IMG
 
 	window = SDL_CreateWindow("break", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-						   800, 600, SDL_WINDOW_FULLSCREEN);
+						   SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN);
 	if(!window){
 		ERROR("Error creating window", SDL_GetError());
 		exit(-1);

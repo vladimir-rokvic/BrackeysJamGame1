@@ -7,6 +7,9 @@
 
 #include "player.hpp"
 
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
 #define ERROR(string, error_type) fprintf(stderr, "%s, %s\n", string, error_type)
 
 class Game{
