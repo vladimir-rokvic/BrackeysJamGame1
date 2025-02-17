@@ -69,6 +69,22 @@ Game::Game() {
 		ERROR("Error loading quit text texture", IMG_GetError());
 		exit(-1);
 	}
+	quit_texture = IMG_LoadTexture(renderer, "assets/quit_texture.png");
+	if(!quit_texture){
+		ERROR("Error loading quit text texture", IMG_GetError());
+		exit(-1);
+	}
+	resume_texture = IMG_LoadTexture(renderer, "assets/resume_texture.png");
+	if(!resume_texture){
+		ERROR("Error loading quit text texture", IMG_GetError());
+		exit(-1);
+	}
+	main_menu_texture = IMG_LoadTexture(renderer, "assets/main_menu_texture.png");
+	if(!main_menu_texture){
+		ERROR("Error loading quit text texture", IMG_GetError());
+		exit(-1);
+	}
+
 	chosen = start_texture;
 	SDL_SetTextureColorMod(chosen, 200, 128, 00);
 	//STOP LOADING MENU OPTIONS
@@ -82,6 +98,11 @@ void Game::draw_menu() {
 		SDL_RenderCopy(renderer, options_texture, NULL, &dst);
 		dst = {screen_width/2 - 144, screen_height/2 + 40, 128, 32};
 		SDL_RenderCopy(renderer, quit_texture, NULL, &dst);
+	}else if(screen == PAUSED){
+		SDL_Rect dst = {screen_width/2 - 192, screen_height/2 - 64, 160, 32};
+		SDL_RenderCopy(renderer, resume_texture, NULL, &dst);
+		dst = {screen_width/2 - 220, screen_height/2 - 12, 224, 32};
+		SDL_RenderCopy(renderer, main_menu_texture, NULL, &dst);
 	}
 }
 
@@ -93,16 +114,21 @@ void Game::change_chosen(SDL_Texture *texture){
 
 void Game::menu_input() {
 	if(screen == PAUSED){
-		if(keys[SDL_SCANCODE_DOWN])
+		if(keys[SDL_SCANCODE_DOWN]){
 			option = QUIT;
-		else if(keys[SDL_SCANCODE_UP])
+			change_chosen(main_menu_texture);
+		}
+		else if(keys[SDL_SCANCODE_UP]){
 			option = START;
+			change_chosen(resume_texture);
+		}
 		else if(keys[SDL_SCANCODE_RETURN]){
 			if(option == START){
 				screen = RUNNNING;
 			}else{
 				screen = MAIN_MENU;
 				option = START;
+				change_chosen(start_texture);
 			}
 		}
 
@@ -166,7 +192,11 @@ void Game::loop() {
 void Game::process() {
 	switch (screen) {
 		case RUNNNING:{
-			if(keys[SDL_SCANCODE_ESCAPE]) screen = PAUSED;
+			if(keys[SDL_SCANCODE_ESCAPE]){
+				screen = PAUSED;
+				option = START;
+				change_chosen(resume_texture);
+			}
 			else player.input();
 		}break;
 		default:

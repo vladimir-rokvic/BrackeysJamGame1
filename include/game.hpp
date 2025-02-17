@@ -32,6 +32,8 @@ private:
 	SDL_Texture *options_texture;
 	SDL_Texture *quit_texture;
 	SDL_Texture *chosen;
+	SDL_Texture *resume_texture;
+	SDL_Texture *main_menu_texture;
 	SDL_Texture *background_texture;
 
 	void draw_menu();
