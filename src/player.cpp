@@ -1,7 +1,6 @@
 #include "player.hpp"
 #include "item.hpp"
 
-#define PLAYER_SPEED 10
 
 Player::Player() {
 	this->src = {
@@ -45,11 +44,16 @@ void Player::draw(SDL_Renderer *renderer) {
 	}
 }
 
+#define PLAYER_SPEED 8
 void Player::input() {
-	this->hspeed = (PLAYER_SPEED * (keys[SDL_SCANCODE_RIGHT] - keys[SDL_SCANCODE_LEFT]))
+	const int8_t dir = (keys[SDL_SCANCODE_RIGHT] - keys[SDL_SCANCODE_LEFT]);
+	this->hspeed = (PLAYER_SPEED * dir)
 	* (1 + 0.1 * this->items[RABBITS_FOOT]);
 
-	this->vspeed = ((num_jumps-- > 0)? 1:0) * (50 * keys[SDL_SCANCODE_SPACE] + 1 * this->items[RABBITS_FOOT]);
+	if(num_jumps){
+		this->vspeed = (50 * keys[SDL_SCANCODE_SPACE] + 1 * this->items[RABBITS_FOOT]);
+		num_jumps--;
+	}
 
 	if(this->hspeed < 0)
 		this->direction = LEFT;
@@ -61,6 +65,7 @@ void Player::input() {
 		this->direction = UP;
 	else if(keys[SDL_SCANCODE_DOWN])
 		this->direction = DOWN;
+
 }
 
 #define FLOOR 840
@@ -68,7 +73,7 @@ void Player::input() {
 void Player::update() {
 	if(this->y < FLOOR || vspeed > 0){
 		this->y -= this->vspeed;
-		this->vspeed -= 8;
+		this->vspeed -= 5;
 	}else{
 		this->y = FLOOR;
 		this->num_jumps = 1 + this->items[LADY_BUG];

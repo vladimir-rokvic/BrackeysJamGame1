@@ -213,8 +213,6 @@ void Game::process() {
 }
 
 void Game::render() {
-	SDL_RenderClear(renderer);
-
 	//draw the background
 	SDL_RenderCopy(renderer, background_texture, NULL, NULL);
 
