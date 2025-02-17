@@ -14,7 +14,6 @@
 
 enum GameScreen {MAIN_MENU, PAUSED, RUNNNING, SCREEN_OPTIONS};
 enum MenuOption {START, OPTIONS, QUIT};
-enum PausedOption {RESUME, MAIN};
 
 class Game{
 private:
@@ -22,14 +21,22 @@ private:
 	SDL_Renderer *renderer;
 	Player player;
 
+	int screen_width;
+	int screen_height;
 	GameScreen screen;
-	MenuOption menu;
-	PausedOption paused;
-
-	void draw_menu();
-	void menu_input();
+	MenuOption option;
 
 	const Uint8 *keys;
+
+	SDL_Texture *start_texture;
+	SDL_Texture *options_texture;
+	SDL_Texture *quit_texture;
+	SDL_Texture *chosen;
+	SDL_Texture *background_texture;
+
+	void draw_menu();
+	void change_chosen(SDL_Texture *texture);
+	void menu_input();
 
 public:
 	bool run;

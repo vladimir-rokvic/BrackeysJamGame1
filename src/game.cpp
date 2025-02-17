@@ -27,6 +27,8 @@ Game::Game() {
 		ERROR("Error creating window", SDL_GetError());
 		exit(-1);
 	}
+	//Returns the size of the window in pixels
+	SDL_GetWindowSizeInPixels(window, &screen_width, &screen_height);
 
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if(!renderer){
@@ -45,70 +47,108 @@ Game::Game() {
 
 	this->screen = MAIN_MENU;
 
-	this->paused = RESUME;
-	this->menu = START;
+	this->option = START;
 
 	keys = SDL_GetKeyboardState(NULL);
 
 	run = true;
+
+	//LOADING MENU OPTIONS
+	start_texture = IMG_LoadTexture(renderer, "assets/start_texture.png");
+	if(!start_texture){
+		ERROR("Error loading start text texture", IMG_GetError());
+		exit(-1);
+	}
+	options_texture = IMG_LoadTexture(renderer, "assets/options_texture.png");
+	if(!options_texture){
+		ERROR("Error loading options text texture", IMG_GetError());
+		exit(-1);
+	}
+	quit_texture = IMG_LoadTexture(renderer, "assets/quit_texture.png");
+	if(!quit_texture){
+		ERROR("Error loading quit text texture", IMG_GetError());
+		exit(-1);
+	}
+	chosen = start_texture;
+	SDL_SetTextureColorMod(chosen, 200, 128, 00);
+	//STOP LOADING MENU OPTIONS
 }
 
 void Game::draw_menu() {
+	if(screen == MAIN_MENU){
+		SDL_Rect dst = {screen_width/2 - 160, screen_height/2 - 64, 160, 32};
+		SDL_RenderCopy(renderer, start_texture, NULL, &dst);
+		dst = {screen_width/2 - 192, screen_height/2 - 12, 224, 32};
+		SDL_RenderCopy(renderer, options_texture, NULL, &dst);
+		dst = {screen_width/2 - 144, screen_height/2 + 40, 128, 32};
+		SDL_RenderCopy(renderer, quit_texture, NULL, &dst);
+	}
+}
+
+void Game::change_chosen(SDL_Texture *texture){
+	SDL_SetTextureColorMod(chosen, 255, 255, 255);
+	chosen = texture;
+	SDL_SetTextureColorMod(chosen, 200, 128, 00);
 }
 
 void Game::menu_input() {
 	if(screen == PAUSED){
 		if(keys[SDL_SCANCODE_DOWN])
-			paused = MAIN;
+			option = QUIT;
 		else if(keys[SDL_SCANCODE_UP])
-			paused = RESUME;
+			option = START;
 		else if(keys[SDL_SCANCODE_RETURN]){
-			if(paused == RESUME){
+			if(option == START){
 				screen = RUNNNING;
 			}else{
-				paused = RESUME;
 				screen = MAIN_MENU;
-				menu = START;
+				option = START;
 			}
 		}
 
 	}else{
 		if(keys[SDL_SCANCODE_DOWN]){
-			switch(menu){
+			switch(option){
 				case START:
-					menu = OPTIONS;
-					break;
+					option = OPTIONS;
+					change_chosen(options_texture);
+				break;
 				case OPTIONS:
-					menu = QUIT;
-					break;
+					option = QUIT;
+					change_chosen(quit_texture);
+				break;
 				case QUIT:
-					menu = START;
-					break;
+					option = START;
+					change_chosen(start_texture);
+				break;
 			}
 		}
 
 		else if(keys[SDL_SCANCODE_UP]){
-			switch(menu){
+			switch(option){
 				case START:
-					menu = QUIT;
-					break;
+					option = QUIT;
+					change_chosen(quit_texture);
+				break;
 				case OPTIONS:
-					menu = START;
-					break;
+					option = START;
+					change_chosen(start_texture);
+				break;
 				case QUIT:
-					menu = OPTIONS;
-					break;
+					option = OPTIONS;
+					change_chosen(options_texture);
+				break;
 			}
 		}
 
 		else if(keys[SDL_SCANCODE_RETURN]){
-			switch(menu){
+			switch(option){
 				case START:{
 					screen = RUNNNING;
 				}break;
 				case OPTIONS:{
-					menu = START;
-					screen = SCREEN_OPTIONS;
+					//option = START;
+					//screen = SCREEN_OPTIONS;
 				}break;
 				case QUIT:{
 					run = false;
@@ -137,6 +177,7 @@ void Game::process() {
 
 void Game::render() {
 	SDL_RenderClear(renderer);
+
 	switch(screen){
 		case RUNNNING:{
 			player.draw(renderer);
@@ -145,12 +186,17 @@ void Game::render() {
 			draw_menu();
 		}break;
 	}
+
 	SDL_RenderPresent(renderer);
 }
 
 Game::~Game() {
 	Mix_Quit();
 	IMG_Quit();
+	SDL_DestroyTexture(start_texture);
+	SDL_DestroyTexture(options_texture);
+	SDL_DestroyTexture(quit_texture);
+	SDL_DestroyTexture(background_texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
