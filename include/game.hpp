@@ -35,6 +35,7 @@ private:
 	SDL_Texture *resume_texture;
 	SDL_Texture *main_menu_texture;
 	SDL_Texture *background_texture;
+	SDL_Texture *floor;
 
 	void draw_menu();
 	void change_chosen(SDL_Texture *texture);

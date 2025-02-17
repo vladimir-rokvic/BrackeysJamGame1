@@ -21,8 +21,8 @@ Player::Player() {
 	this->texture = NULL;
 
 	//for hitboxes
-	this->x = 32;
-	this->y = 32;
+	this->x = 0;
+	this->y = 0;
 	this->w = 64;
 	this->h = 64;
 
@@ -37,8 +37,8 @@ Player::Player() {
 }
 
 void Player::draw(SDL_Renderer *renderer) {
-	dst.x = x - 32;
-	dst.y = y - 32;
+	dst.x = x;
+	dst.y = y;
 	src.x = src.w * direction;
 	if(SDL_RenderCopy(renderer, this->texture, &src, &dst) < 0) {
 		fprintf(stderr, "Error drawing player: %s", SDL_GetError());
@@ -63,16 +63,21 @@ void Player::input() {
 		this->direction = DOWN;
 }
 
+#define FLOOR 840
+
 void Player::update() {
-	if(this->y > 0 || vspeed > 0){
-		this->y += this->vspeed;
+	if(this->y < FLOOR || vspeed > 0){
+		this->y -= this->vspeed;
 		this->vspeed -= 10;
 	}else{
-		this->y = 0;
+		this->y = FLOOR;
 		this->num_jumps = 1 + this->items[LADY_BUG];
 	}
 
 	this->x += hspeed;
+
+	if(x < 0 || x + 56 > 1920)
+		x -= hspeed;
 }
 
 void Player::setX(int num){

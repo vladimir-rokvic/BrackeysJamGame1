@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include <SDL2/SDL_image.h>
 
 Game::Game() {
 	//INIT SDL
@@ -76,18 +77,24 @@ Game::Game() {
 	}
 	resume_texture = IMG_LoadTexture(renderer, "assets/resume_texture.png");
 	if(!resume_texture){
-		ERROR("Error loading quit text texture", IMG_GetError());
+		ERROR("Error loading resume text texture", IMG_GetError());
 		exit(-1);
 	}
 	main_menu_texture = IMG_LoadTexture(renderer, "assets/main_menu_texture.png");
 	if(!main_menu_texture){
-		ERROR("Error loading quit text texture", IMG_GetError());
+		ERROR("Error loading main menu text texture", IMG_GetError());
 		exit(-1);
 	}
 
 	chosen = start_texture;
 	SDL_SetTextureColorMod(chosen, 200, 128, 00);
 	//STOP LOADING MENU OPTIONS
+
+	background_texture = IMG_LoadTexture(renderer, "assets/background_texture.png");
+	if(!background_texture){
+		ERROR("Error loading background texture", IMG_GetError());
+		exit(-1);
+	}
 }
 
 void Game::draw_menu() {
@@ -99,9 +106,9 @@ void Game::draw_menu() {
 		dst = {screen_width/2 - 144, screen_height/2 + 40, 128, 32};
 		SDL_RenderCopy(renderer, quit_texture, NULL, &dst);
 	}else if(screen == PAUSED){
-		SDL_Rect dst = {screen_width/2 - 192, screen_height/2 - 64, 160, 32};
+		SDL_Rect dst = {screen_width/2 - 176, screen_height/2 - 64, 160, 32};
 		SDL_RenderCopy(renderer, resume_texture, NULL, &dst);
-		dst = {screen_width/2 - 220, screen_height/2 - 12, 224, 32};
+		dst = {screen_width/2 - 208, screen_height/2 - 12, 224, 32};
 		SDL_RenderCopy(renderer, main_menu_texture, NULL, &dst);
 	}
 }
@@ -208,6 +215,9 @@ void Game::process() {
 void Game::render() {
 	SDL_RenderClear(renderer);
 
+	//draw the background
+	SDL_RenderCopy(renderer, background_texture, NULL, NULL);
+
 	switch(screen){
 		case RUNNNING:{
 			player.draw(renderer);
@@ -226,6 +236,9 @@ Game::~Game() {
 	SDL_DestroyTexture(start_texture);
 	SDL_DestroyTexture(options_texture);
 	SDL_DestroyTexture(quit_texture);
+	SDL_DestroyTexture(resume_texture);
+	SDL_DestroyTexture(main_menu_texture);
+	SDL_DestroyTexture(floor);
 	SDL_DestroyTexture(background_texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
