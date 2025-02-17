@@ -44,7 +44,7 @@ Game::Game() {
 		exit(-1);
 	}
 	this->player.setTexture(player_texture);
-	this->player.setXY(200, 300);
+	this->player.setXY(3*screen_width/4, 840);
 
 	this->screen = MAIN_MENU;
 

@@ -68,7 +68,7 @@ void Player::input() {
 void Player::update() {
 	if(this->y < FLOOR || vspeed > 0){
 		this->y -= this->vspeed;
-		this->vspeed -= 10;
+		this->vspeed -= 8;
 	}else{
 		this->y = FLOOR;
 		this->num_jumps = 1 + this->items[LADY_BUG];
