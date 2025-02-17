@@ -12,7 +12,7 @@
 
 #define ERROR(string, error_type) fprintf(stderr, "%s, %s\n", string, error_type)
 
-enum GameScreen {MAIN_MENU, PAUSED, RUNNNING};
+enum GameScreen {MAIN_MENU, PAUSED, RUNNNING, SCREEN_OPTIONS};
 enum MenuOption {START, OPTIONS, QUIT};
 enum PausedOption {RESUME, MAIN};
 
@@ -32,6 +32,7 @@ private:
 	const Uint8 *keys;
 
 public:
+	bool run;
 	Game();
 	~Game();
 	void process();

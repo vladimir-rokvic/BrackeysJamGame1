@@ -3,13 +3,12 @@
 
 int main(int argc, char* argv[]){
 	Game game;
-	bool run = true;
 	SDL_Event ev;
-	while(run){
+	while(game.run){
 		while(SDL_PollEvent(&ev))
 			switch (ev.type) {
 				case SDL_QUIT:{
-					run = false;
+					game.run = false;
 				}break;
 				case SDL_KEYDOWN:{
 					if(ev.key.repeat == 0)

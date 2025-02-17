@@ -49,6 +49,8 @@ Game::Game() {
 	this->menu = START;
 
 	keys = SDL_GetKeyboardState(NULL);
+
+	run = true;
 }
 
 void Game::draw_menu() {
@@ -60,33 +62,59 @@ void Game::menu_input() {
 			paused = MAIN;
 		else if(keys[SDL_SCANCODE_UP])
 			paused = RESUME;
+		else if(keys[SDL_SCANCODE_RETURN]){
+			if(paused == RESUME){
+				screen = RUNNNING;
+			}else{
+				paused = RESUME;
+				screen = MAIN_MENU;
+				menu = START;
+			}
+		}
 
 	}else{
-		if(keys[SDL_SCANCODE_DOWN])
+		if(keys[SDL_SCANCODE_DOWN]){
 			switch(menu){
 				case START:
 					menu = OPTIONS;
-				break;
+					break;
 				case OPTIONS:
 					menu = QUIT;
-				break;
+					break;
 				case QUIT:
 					menu = START;
-				break;
+					break;
 			}
+		}
 
-		else if(keys[SDL_SCANCODE_UP])
+		else if(keys[SDL_SCANCODE_UP]){
 			switch(menu){
 				case START:
 					menu = QUIT;
-				break;
+					break;
 				case OPTIONS:
 					menu = START;
-				break;
+					break;
 				case QUIT:
 					menu = OPTIONS;
-				break;
+					break;
 			}
+		}
+
+		else if(keys[SDL_SCANCODE_RETURN]){
+			switch(menu){
+				case START:{
+					screen = RUNNNING;
+				}break;
+				case OPTIONS:{
+					menu = START;
+					screen = SCREEN_OPTIONS;
+				}break;
+				case QUIT:{
+					run = false;
+				}break;
+			}
+		}
 	}
 }
 
