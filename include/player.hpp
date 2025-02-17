@@ -2,19 +2,30 @@
 #define PLAYER_H
 
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_render.h>
-#include "item.hpp"
 //player look direction enum
 enum PlayerDirection {NONE, RIGHT, LEFT, UP, DOWN};
 class Player {
 private:
+	//for hitboxes
 	int x,y;
 	int w,h;
-	int num_jumps;
+
+
+	//Rect of the source texture
+	SDL_Rect src;
+	SDL_Rect dst;
 	SDL_Texture *texture;
+
+	//The direction of where the player is looking
 	PlayerDirection direction;
+	int num_jumps;
+
+	//keypresses
 	const Uint8 *keys;
+
 	Uint32 items[13];
+
+	//movement velocity
 	int hspeed;
 	int vspeed;
 

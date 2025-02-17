@@ -42,19 +42,81 @@ Game::Game() {
 	}
 	this->player.setTexture(player_texture);
 	this->player.setXY(200, 300);
+
+	this->screen = MAIN_MENU;
+
+	this->paused = RESUME;
+	this->menu = START;
+
+	keys = SDL_GetKeyboardState(NULL);
+}
+
+void Game::draw_menu() {
+}
+
+void Game::menu_input() {
+	if(screen == PAUSED){
+		if(keys[SDL_SCANCODE_DOWN])
+			paused = MAIN;
+		else if(keys[SDL_SCANCODE_UP])
+			paused = RESUME;
+
+	}else{
+		if(keys[SDL_SCANCODE_DOWN])
+			switch(menu){
+				case START:
+					menu = OPTIONS;
+				break;
+				case OPTIONS:
+					menu = QUIT;
+				break;
+				case QUIT:
+					menu = START;
+				break;
+			}
+
+		else if(keys[SDL_SCANCODE_UP])
+			switch(menu){
+				case START:
+					menu = QUIT;
+				break;
+				case OPTIONS:
+					menu = START;
+				break;
+				case QUIT:
+					menu = OPTIONS;
+				break;
+			}
+	}
 }
 
 void Game::loop() {
-	player.update();
+	if(screen == RUNNNING)
+		player.update();
 }
 
 void Game::process() {
-	player.input();
+	switch (screen) {
+		case RUNNNING:{
+			if(keys[SDL_SCANCODE_ESCAPE]) screen = PAUSED;
+			else player.input();
+		}break;
+		default:
+			menu_input();
+		break;
+	}
 }
 
 void Game::render() {
 	SDL_RenderClear(renderer);
-	player.draw(renderer);
+	switch(screen){
+		case RUNNNING:{
+			player.draw(renderer);
+		}break;
+		default:{
+			draw_menu();
+		}break;
+	}
 	SDL_RenderPresent(renderer);
 }
 

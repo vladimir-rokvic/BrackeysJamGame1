@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include <SDL2/SDL_events.h>
 
 int main(int argc, char* argv[]){
 	Game game;
@@ -10,9 +11,13 @@ int main(int argc, char* argv[]){
 				case SDL_QUIT:{
 					run = false;
 				}break;
-				default:{
+				case SDL_KEYDOWN:{
+					if(ev.key.repeat == 0)
+						game.process();
+				}break;
+				case SDL_KEYUP:{
 					game.process();
-				}
+				}break;
 			}
 		game.loop();
 		game.render();
