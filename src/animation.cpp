@@ -13,6 +13,7 @@ Animation::Animation(int x, int y, int w, int h, Uint8 num_f, Uint8 d):
 
 Uint8 Animation::play(SDL_Renderer *renderer, SDL_Texture *texture,
 					  SDL_Rect dst, PlayerDirection direction) {
+	if(direction == NONE) direction = LEFT;
 	frame++;
 	if(frame >= frame_duration){
 		playing = true;

@@ -4,7 +4,7 @@
 
 Player::Player():
 	//x,y,w,h,num_frames,duration
-	attack(0, 64, 80, 64, 4, 16){
+	attack(0, 64, 80, 64, 4, 12){
 	this->src = {
 		.x = 0,
 		.y = 0,
@@ -30,9 +30,13 @@ Player::Player():
 	this->vspeed = 0;
 	this->hspeed = 0;
 
+	this->pressed_attack = false;
+	this->pressed_jump = false;
 	this->num_jumps = 1;
+
 	this->direction = NONE;
 	this->playing_animation = NO_ANIMATION;
+	this->action = STANDING;
 
 	keys = SDL_GetKeyboardState(NULL);
 	memset(this->items, 0, 13*4);
@@ -57,19 +61,21 @@ void Player::draw(SDL_Renderer *renderer) {
 
 #define PLAYER_SPEED 8
 void Player::input() {
-	if(playing_animation  == NO_ANIMATION && keys[SDL_SCANCODE_X]){
+	if(playing_animation  == NO_ANIMATION && pressed_attack != keys[SDL_SCANCODE_X]){
 		playing_animation = ATTACK;
 		return;
 	}
+	pressed_attack = keys[SDL_SCANCODE_X];
 
 	const int8_t dir = (keys[SDL_SCANCODE_RIGHT] - keys[SDL_SCANCODE_LEFT]);
 	this->hspeed = (PLAYER_SPEED * dir)
 	* (1 + 0.1 * this->items[RABBITS_FOOT]);
 
-	if(num_jumps){
-		this->vspeed = (60 * keys[SDL_SCANCODE_SPACE] + 1 * this->items[RABBITS_FOOT]);
+	if(num_jumps && pressed_jump ^ keys[SDL_SCANCODE_SPACE]){
+		this->vspeed = 45 * keys[SDL_SCANCODE_SPACE];
 		num_jumps--;
 	}
+	pressed_jump = keys[SDL_SCANCODE_SPACE];
 
 	if(this->hspeed < 0)
 		this->direction = LEFT;
@@ -85,11 +91,12 @@ void Player::input() {
 }
 
 #define FLOOR 840
+#define GRAVITY 3
 
 void Player::update() {
 	if(this->y < FLOOR || vspeed > 0){
 		this->y -= this->vspeed;
-		this->vspeed -= 5;
+		this->vspeed -= GRAVITY;
 	}else{
 		this->y = FLOOR;
 		this->num_jumps = 1 + this->items[LADY_BUG];

@@ -7,6 +7,7 @@
 
 //player look direction enum
 enum PlayingAnimation {NO_ANIMATION, ATTACK};
+enum PlayerAction {STANDING, IN_AIR};
 class Player {
 private:
 	//for hitboxes
@@ -24,12 +25,16 @@ private:
 
 	//keypresses
 	const Uint8 *keys;
+	bool pressed_jump;
+	bool pressed_attack;
 
 	Uint32 items[13];
 
 	//movement velocity
 	int hspeed;
 	int vspeed;
+
+	PlayerAction action;
 
 	PlayingAnimation playing_animation;
 	Animation attack;
