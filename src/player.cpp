@@ -61,9 +61,9 @@ void Player::draw(SDL_Renderer *renderer) {
 
 #define PLAYER_SPEED 8
 void Player::input() {
-	if(playing_animation  == NO_ANIMATION && pressed_attack != keys[SDL_SCANCODE_X]){
-		playing_animation = ATTACK;
-		return;
+	if(playing_animation  == NO_ANIMATION && pressed_attack ^ keys[SDL_SCANCODE_X]){
+		if(keys[SDL_SCANCODE_X])
+			playing_animation = ATTACK;
 	}
 	pressed_attack = keys[SDL_SCANCODE_X];
 

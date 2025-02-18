@@ -36,3 +36,6 @@ Uint8 Animation::play(SDL_Renderer *renderer, SDL_Texture *texture,
 
 	return playing;
 }
+
+void Animation::loop_play(SDL_Renderer *renderer){
+}
