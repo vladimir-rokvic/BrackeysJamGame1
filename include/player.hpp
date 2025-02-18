@@ -2,14 +2,16 @@
 #define PLAYER_H
 
 #include <SDL2/SDL_image.h>
+
+#include "animation.hpp"
+
 //player look direction enum
-enum PlayerDirection {NONE, RIGHT, LEFT, UP, DOWN};
+enum PlayingAnimation {NO_ANIMATION, ATTACK};
 class Player {
 private:
 	//for hitboxes
 	int x,y;
 	int w,h;
-
 
 	//Rect of the source texture
 	SDL_Rect src;
@@ -29,6 +31,9 @@ private:
 	int hspeed;
 	int vspeed;
 
+	PlayingAnimation playing_animation;
+	Animation attack;
+
 public:
 	Player();
 	Player(int x, int y, SDL_Texture *texture);
@@ -36,6 +41,7 @@ public:
 	void draw(SDL_Renderer *renderer);
 	void input();
 	void update();
+	void animate_attack(SDL_Renderer *renderer);
 	void setTexture(SDL_Texture *texture);
 	void setY(int num);
 	void setX(int num);

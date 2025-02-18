@@ -203,8 +203,7 @@ void Game::process() {
 				screen = PAUSED;
 				option = START;
 				change_chosen(resume_texture);
-			}
-			else player.input();
+			}else player.input();
 		}break;
 		default:
 			menu_input();

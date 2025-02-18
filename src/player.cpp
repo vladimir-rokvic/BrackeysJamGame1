@@ -1,8 +1,10 @@
 #include "player.hpp"
+#include "animation.hpp"
 #include "item.hpp"
 
-
-Player::Player() {
+Player::Player():
+	//x,y,w,h,num_frames,duration
+	attack(0, 64, 80, 64, 4, 16){
 	this->src = {
 		.x = 0,
 		.y = 0,
@@ -30,6 +32,7 @@ Player::Player() {
 
 	this->num_jumps = 1;
 	this->direction = NONE;
+	this->playing_animation = NO_ANIMATION;
 
 	keys = SDL_GetKeyboardState(NULL);
 	memset(this->items, 0, 13*4);
@@ -39,19 +42,32 @@ void Player::draw(SDL_Renderer *renderer) {
 	dst.x = x;
 	dst.y = y;
 	src.x = src.w * direction;
-	if(SDL_RenderCopy(renderer, this->texture, &src, &dst) < 0) {
-		fprintf(stderr, "Error drawing player: %s", SDL_GetError());
+	switch(playing_animation){
+		case ATTACK:{
+			if(!attack.play(renderer, texture, dst, direction))
+				playing_animation = NO_ANIMATION;
+		}break;
+		default:{
+			if(SDL_RenderCopy(renderer, this->texture, &src, &dst) < 0) {
+				fprintf(stderr, "Error drawing player: %s", SDL_GetError());
+			}
+		}break;
 	}
 }
 
 #define PLAYER_SPEED 8
 void Player::input() {
+	if(playing_animation  == NO_ANIMATION && keys[SDL_SCANCODE_X]){
+		playing_animation = ATTACK;
+		return;
+	}
+
 	const int8_t dir = (keys[SDL_SCANCODE_RIGHT] - keys[SDL_SCANCODE_LEFT]);
 	this->hspeed = (PLAYER_SPEED * dir)
 	* (1 + 0.1 * this->items[RABBITS_FOOT]);
 
 	if(num_jumps){
-		this->vspeed = (50 * keys[SDL_SCANCODE_SPACE] + 1 * this->items[RABBITS_FOOT]);
+		this->vspeed = (60 * keys[SDL_SCANCODE_SPACE] + 1 * this->items[RABBITS_FOOT]);
 		num_jumps--;
 	}
 
