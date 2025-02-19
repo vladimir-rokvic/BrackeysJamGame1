@@ -67,7 +67,7 @@ void Player::draw(SDL_Renderer *renderer) {
 				case DOWN:{
 					playing_animation = 
 						PlayingAnimation(
-							ATTACK * down_attack.play(renderer, texture, dst, -80, 0)
+							ATTACK * down_attack.play(renderer, texture, dst, -35, 78)
 						);
 				}break;
 				default:{

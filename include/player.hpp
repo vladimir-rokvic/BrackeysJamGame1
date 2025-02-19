@@ -35,7 +35,6 @@ private:
 	int vspeed;
 
 	PlayerAction action;
-	Animation attack;
 
 	PlayingAnimation playing_animation;
 	Animation right_attack;

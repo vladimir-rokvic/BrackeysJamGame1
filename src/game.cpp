@@ -95,6 +95,9 @@ Game::Game() {
 		ERROR("Error loading background texture", IMG_GetError());
 		exit(-1);
 	}
+
+	//LOADING ENEMY TEXTURE
+	
 }
 
 void Game::draw_menu() {
