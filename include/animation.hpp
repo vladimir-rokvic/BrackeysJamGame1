@@ -23,7 +23,7 @@ public:
 	bool playing;
 	Animation(int x, int y, int w, int h, Uint8 num_f, Uint8 d);
 	Uint8 play(SDL_Renderer *renderer,SDL_Texture *texture,
-			SDL_Rect dst, PlayerDirection direction);
+			SDL_Rect dst, const int x_offset, const int y_offset);
 	void loop_play(SDL_Renderer *renderer);
 };
 

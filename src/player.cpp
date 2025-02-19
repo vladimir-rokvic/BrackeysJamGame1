@@ -4,7 +4,10 @@
 
 Player::Player():
 	//x,y,w,h,num_frames,duration
-	attack(0, 64, 80, 64, 4, 16){
+	right_attack(0, 64, 80, 64, 4,  16),
+	left_attack(0, 128, 80, 64, 4 , 16),
+	up_attack(0, 192, 64, 80, 4, 16),
+	down_attack(0, 272, 64, 80, 4, 16){
 	this->src = {
 		.x = 0,
 		.y = 0,
@@ -48,8 +51,32 @@ void Player::draw(SDL_Renderer *renderer) {
 	src.x = src.w * direction;
 	switch(playing_animation){
 		case ATTACK:{
-			if(!attack.play(renderer, texture, dst, direction))
-				playing_animation = NO_ANIMATION;
+			switch(direction){
+				case RIGHT:{
+					playing_animation = 
+						PlayingAnimation(
+							ATTACK * right_attack.play(renderer, texture, dst, 0, 0)
+						);
+				}break;
+				case UP:{
+					playing_animation = 
+						PlayingAnimation(
+							ATTACK * up_attack.play(renderer, texture, dst, -35, -32)
+						);
+				}break;
+				case DOWN:{
+					playing_animation = 
+						PlayingAnimation(
+							ATTACK * down_attack.play(renderer, texture, dst, -80, 0)
+						);
+				}break;
+				default:{
+					playing_animation = 
+						PlayingAnimation(
+							ATTACK * left_attack.play(renderer, texture, dst, -96, 0)
+						);
+				}break;
+			}
 		}break;
 		default:{
 			if(SDL_RenderCopy(renderer, this->texture, &src, &dst) < 0) {

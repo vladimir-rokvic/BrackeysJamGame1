@@ -35,9 +35,13 @@ private:
 	int vspeed;
 
 	PlayerAction action;
+	Animation attack;
 
 	PlayingAnimation playing_animation;
-	Animation attack;
+	Animation right_attack;
+	Animation left_attack;
+	Animation up_attack;
+	Animation down_attack;
 
 public:
 	Player();
