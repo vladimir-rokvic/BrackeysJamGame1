@@ -99,16 +99,16 @@ Game::Game() {
 
 void Game::draw_menu() {
 	if(screen == MAIN_MENU){
-		SDL_Rect dst = {screen_width/2 - 160, screen_height/2 - 64, 160, 32};
+		SDL_Rect dst = {screen_width/2 - 176, screen_height/2 - 64, 160, 32};
 		SDL_RenderCopy(renderer, start_texture, NULL, &dst);
 		dst = {screen_width/2 - 192, screen_height/2 - 12, 224, 32};
 		SDL_RenderCopy(renderer, options_texture, NULL, &dst);
 		dst = {screen_width/2 - 144, screen_height/2 + 40, 128, 32};
 		SDL_RenderCopy(renderer, quit_texture, NULL, &dst);
 	}else if(screen == PAUSED){
-		SDL_Rect dst = {screen_width/2 - 176, screen_height/2 - 64, 160, 32};
+		SDL_Rect dst = {screen_width/2 - 144, screen_height/2 - 64, 160, 32};
 		SDL_RenderCopy(renderer, resume_texture, NULL, &dst);
-		dst = {screen_width/2 - 208, screen_height/2 - 12, 224, 32};
+		dst = {screen_width/2 - 188, screen_height/2 - 12, 224, 32};
 		SDL_RenderCopy(renderer, main_menu_texture, NULL, &dst);
 	}
 }

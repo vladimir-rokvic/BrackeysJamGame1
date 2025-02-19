@@ -4,7 +4,7 @@
 
 Player::Player():
 	//x,y,w,h,num_frames,duration
-	attack(0, 64, 80, 64, 4, 12){
+	attack(0, 64, 80, 64, 4, 16){
 	this->src = {
 		.x = 0,
 		.y = 0,
