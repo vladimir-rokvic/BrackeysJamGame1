@@ -212,7 +212,7 @@ bool Game::check_colision(const SDL_Rect *dst1, const SDL_Rect *dst2) {
 }
 
 void Game::restart() {
-	for(unsigned long i = 0; i < entities.size(); ++i)
+	for(ul i = 0; i < entities.size(); ++i)
 		delete entities[i];
 	entities.resize(0);
 	this->player.setXY(3*screen_width/4, 840);
@@ -227,12 +227,12 @@ void Game::loop() {
 		if(player_hit_cooldown) --player_hit_cooldown;
 		else SDL_SetTextureColorMod(player_texture, 255, 255, 255);
 		if(!(frame%30)){
-			for(unsigned long i = 0; i < entities.size(); ++i){
+			for(ul i = 0; i < entities.size(); ++i){
 				entities[i]->process(player.x, player.y);
 			}
 		}
 		if(!(frame%4)){
-			for(unsigned long i = 0; i < entities.size(); ++i){
+			for(ul i = 0; i < entities.size(); ++i){
 				entities[i]->update();
 				if(player_hit_cooldown == 0 && 
 					check_colision(entities[i]->getDst(), &player.dst)){
@@ -257,24 +257,76 @@ void Game::process() {
 				option = START;
 				change_chosen(resume_texture);
 			}else{
+				//PROCCESING ATTACK
 				player_action = player.input();
 				if(player_action == ATTACKING){
 					switch(player.direction){
 						case UP:{
+							const SDL_Rect dst = {
+								player.x - 32,
+								player.y - 32, 
+								128, 
+								128
+							};
 							for(ul i = 0; i < entities.size(); ++i){
-								if(check_colision(NULL,NULL)){
-									entities[i]->take_damage(player.get_damage());
+								if(check_colision(entities[i]->getDst(), &dst)){
+									if(entities[i]->take_damage(player.get_damage())){
+										entities.erase(entities.begin() + i);
+									}
+									break;
 								}
 							}
 						}break;
 						case RIGHT:{
+							const SDL_Rect dst = {
+								player.x + 64,
+								player.y, 
+								128, 
+								128
+							};
+							for(ul i = 0; i < entities.size(); ++i){
+								if(check_colision(entities[i]->getDst(), &dst)){
+									if(entities[i]->take_damage(player.get_damage())){
+										entities.erase(entities.begin() + i);
+									}
+									break;
+								}
+							}
 						}break;
 						case LEFT:{
+							const SDL_Rect dst = {
+								player.x - 64,
+								player.y, 
+								128, 
+								128
+							};
+							for(ul i = 0; i < entities.size(); ++i){
+								if(check_colision(entities[i]->getDst(), &dst)){
+									if(entities[i]->take_damage(player.get_damage())){
+										entities.erase(entities.begin() + i);
+									}
+									break;
+								}
+							}
 						}break;
 						case DOWN:{
+							const SDL_Rect dst = {
+								player.x - 32,
+								player.y + 32, 
+								128, 
+								128
+							};
+							for(ul i = 0; i < entities.size(); ++i){
+								if(check_colision(entities[i]->getDst(), &dst)){
+									if(entities[i]->take_damage(player.get_damage())){
+										entities.erase(entities.begin() + i);
+									}
+									break;
+								}
+							}
 						}break;
 						default:
-						break;
+							break;
 					}
 				}
 			}
@@ -291,7 +343,7 @@ void Game::render() {
 
 	switch(screen){
 		case RUNNNING:{
-			for(unsigned long i = 0; i < entities.size(); ++i)
+			for(ul i = 0; i < entities.size(); ++i)
 				entities[i]->draw(renderer);
 			player.draw(renderer);
 		}break;
@@ -306,7 +358,7 @@ void Game::render() {
 }
 
 Game::~Game() {
-	for(unsigned long i = 0;i < entities.size();++i)
+	for(ul i = 0;i < entities.size();++i)
 		delete entities[i];
 
 	Mix_Quit();
