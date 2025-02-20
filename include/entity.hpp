@@ -8,8 +8,10 @@
 #include "animation.hpp"
 #include <SDL2/SDL.h>
 
+enum Entities {WALKER,BALL};
+
 class Entity {
-private:
+protected:
 	//Entity positions in real coordinates
 	int x, y;
 	int w, h;
@@ -21,13 +23,20 @@ private:
 
 public:
 	virtual void move();
+	virtual void draw(SDL_Renderer *renderer);
+	Entity(int x, int y, int w, int h, SDL_Texture *texture);
+	~Entity();
+	SDL_Texture* getTexture() const;
 };
 
-class Walker:Entity {
-	Animation walk;
-	Walker();
+class Walker: Entity {
+	//Animation walk;
+	Walker(int x, int y, int w, int h, SDL_Texture* texture);
+	//walking frame
+	Uint8 frame;
 public:
 	void move();
+	void draw(SDL_Renderer *renderer);
 };
 
 #endif // !ENTITY_H

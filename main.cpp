@@ -7,7 +7,7 @@ int main(int argc, char* argv[]){
 	Game game;
 	SDL_Event ev;
 	//For counting the fps
-	Uint32 end, start = SDL_GetTicks();
+	//Uint32 end, start = SDL_GetTicks();
 	//For capping the framerate to ~60
 	Uint32 frame_start, frame_end;
 	Uint32 frame = 0;
@@ -31,15 +31,16 @@ int main(int argc, char* argv[]){
 		game.render();
 		++frame;
 
-		frame_end = end = SDL_GetTicks();
+		frame_end = SDL_GetTicks();
 		if(frame_end - frame_start < FRAME_DURATION){
 			SDL_Delay(FRAME_DURATION - (frame_end - frame_start));
 		}
-		if(end - start >= 1000){
-			printf("FPS: %d\n", frame);
-			frame = 0;
-			start = SDL_GetTicks();
-		}
+		//end = SDL_GetTicks();
+		//if(end - start >= 1000){
+		//	printf("FPS: %d\n", frame);
+		//	frame = 0;
+		//	start = SDL_GetTicks();
+		//}
 	}
 
 	return 0;

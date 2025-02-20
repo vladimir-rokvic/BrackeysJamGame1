@@ -231,6 +231,9 @@ void Game::render() {
 }
 
 Game::~Game() {
+	for(int i=0; i< entities.size(); ++i)
+		delete entities[i];
+
 	Mix_Quit();
 	IMG_Quit();
 	SDL_DestroyTexture(start_texture);

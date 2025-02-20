@@ -4,8 +4,10 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
+#include <vector>
 
 #include "player.hpp"
+#include "entity.hpp"
 
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
@@ -40,6 +42,8 @@ private:
 	void draw_menu();
 	void change_chosen(SDL_Texture *texture);
 	void menu_input();
+
+	std::vector<Entity *> entities;
 
 public:
 	bool run;
