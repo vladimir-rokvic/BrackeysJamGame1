@@ -16,6 +16,7 @@ protected:
 	int x, y;
 	int w, h;
 	int hspeed, vspeed;
+	Uint8 hp;
 
 	//Rects to give to SDL_RenderCopy
 	SDL_Rect src, dst;
@@ -27,25 +28,27 @@ public:
 	virtual void process(const int x, const int y) {};
 	virtual void update() {};
 	virtual void draw(SDL_Renderer *renderer) {};
+	virtual bool take_damage(int dmg) { return true;};
 	int getX() const;
 	int getY() const;
 	int getW() const;
 	int getH() const;
+	SDL_Rect* getDst();
 	Entity(const int x, const int y, const int w, const int h, SDL_Texture *texture);
-	virtual ~Entity();
+	virtual ~Entity() {};
 };
 
 class Walker: public Entity {
 	Animation walk;
-	Uint8 hp;
 	int goal_x;
 	//walking frame
 	Uint8 frame;
 public:
 	Walker(int x, int y, int w, int h, SDL_Texture* texture);
+	void process(const int x, const int y);
 	void update();
 	void draw(SDL_Renderer *renderer);
-	void process(const int x, const int y);
+	bool take_damage(int dmg);
 };
 
 #endif // !ENTITY_H

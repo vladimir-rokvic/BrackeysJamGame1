@@ -33,13 +33,13 @@ Player::Player():
 	this->vspeed = 0;
 	this->hspeed = 0;
 
+	this->attack_cooldown = 0;
 	this->pressed_attack = false;
 	this->pressed_jump = false;
 	this->num_jumps = 1;
 
 	this->direction = NONE;
 	this->playing_animation = NO_ANIMATION;
-	this->action = STANDING;
 
 	keys = SDL_GetKeyboardState(NULL);
 	memset(this->items, 0, 13*4);
@@ -88,13 +88,17 @@ void Player::draw(SDL_Renderer *renderer) {
 	}
 }
 
-void Player::input() {
-	if(playing_animation  == NO_ANIMATION && pressed_attack ^ keys[SDL_SCANCODE_A]){
+PlayerAction Player::input() {
+	if(playing_animation  == NO_ANIMATION && pressed_attack ^ keys[SDL_SCANCODE_A] &&
+		attack_cooldown == 0){
 			playing_animation = PlayingAnimation(
 			ATTACK * keys[SDL_SCANCODE_A]
 		);
+		attack_cooldown = 16;
 	}
 	pressed_attack = keys[SDL_SCANCODE_A];
+
+	if(attack_cooldown == 16) return ATTACKING;
 
 	const int8_t dir = (keys[SDL_SCANCODE_RIGHT] - keys[SDL_SCANCODE_LEFT]);
 	this->hspeed = (PLAYER_SPEED * dir)
@@ -110,13 +114,13 @@ void Player::input() {
 		this->direction = LEFT;
 	else if(this->hspeed > 0)
 		this->direction = RIGHT;
-	else this->direction = NONE;
 
 	if(keys[SDL_SCANCODE_UP])
 		this->direction = UP;
 	else if(keys[SDL_SCANCODE_DOWN])
 		this->direction = DOWN;
 
+	return WALKING;
 }
 
 void Player::update() {
@@ -129,9 +133,10 @@ void Player::update() {
 	}
 
 	this->x += hspeed;
-
 	if(x < 0 || x + 56 > 1920)
 		x -= hspeed;
+
+	if(attack_cooldown) --attack_cooldown;
 }
 
 void Player::setX(int num){
@@ -148,6 +153,15 @@ void Player::setTexture(SDL_Texture *texture) {
 void Player::setXY(int x, int y) {
 	this->x = x;
 	this->y = y;
+}
+
+void Player::setHp(int hp) {
+	this->hp = hp;
+}
+
+int Player::get_damage() {
+	//10 is the base damage of the weapon
+	return 10;
 }
 
 Player::~Player() {

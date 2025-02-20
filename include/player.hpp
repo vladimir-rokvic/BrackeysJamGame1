@@ -11,16 +11,14 @@
 
 //player look direction enum
 enum PlayingAnimation {NO_ANIMATION, ATTACK};
-enum PlayerAction {STANDING, IN_AIR};
+enum PlayerAction {ATTACKING, WALKING};
 class Player {
 private:
 	//Rect of the source texture
 	SDL_Rect src;
-	SDL_Rect dst;
 	SDL_Texture *texture;
 
-	//The direction of where the player is looking
-	PlayerDirection direction;
+	int attack_cooldown;
 	int num_jumps;
 
 	//keypresses
@@ -47,17 +45,22 @@ public:
 	Player(int x, int y, SDL_Texture *texture);
 	~Player();
 	void draw(SDL_Renderer *renderer);
-	void input();
+	PlayerAction input();
 	void update();
 	void animate_attack(SDL_Renderer *renderer);
 	void setTexture(SDL_Texture *texture);
 	void setY(int num);
 	void setX(int num);
 	void setXY(int x, int y);
+	void setHp(int hp);
+	int get_damage();
 	Uint8 hp;
 	//for hitboxes
 	int x,y;
 	int w,h;
+	SDL_Rect dst;
+	//The direction of where the player is looking
+	PlayerDirection direction;
 };
 
 #endif // !PLAYER_H

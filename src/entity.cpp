@@ -26,8 +26,8 @@ int Entity::getH() const {
 	return h;
 }
 
-Entity::~Entity() {
-	SDL_DestroyTexture(texture);
+SDL_Rect* Entity::getDst() {
+	return &dst;
 }
 
 Walker::Walker(const int x, const int y, const int w, const int h, SDL_Texture *texture):
@@ -52,4 +52,9 @@ void Walker::update() {
 void Walker::draw(SDL_Renderer *renderer) {
 	dst.x = x;
 	walk.loop_play(renderer, texture, dst);
+}
+
+bool Walker::take_damage(const int dmg) {
+	hp -= dmg;
+	return hp <= 0;
 }

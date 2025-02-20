@@ -38,7 +38,7 @@ Game::Game() {
 	}
 	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
 
-	SDL_Texture *player_texture = IMG_LoadTexture(renderer, "assets/player_sheet.png");
+	player_texture = IMG_LoadTexture(renderer, "assets/player_sheet.png");
 	if(!player_texture){
 		ERROR("Error loading player texture", IMG_GetError());
 		exit(-1);
@@ -97,13 +97,13 @@ Game::Game() {
 	}
 
 	//LOADING ENEMY TEXTURE
-	SDL_Texture *enemy_texture = IMG_LoadTexture(renderer, "assets/walker.png");
-	if(!enemy_texture){
+	walker_texture = IMG_LoadTexture(renderer, "assets/walker.png");
+	if(!walker_texture){
 		ERROR("Error loading walker texture", IMG_GetError());
 		exit(-1);
 	}
 
-	Walker *w = new Walker(80, FLOOR, 32, 64, enemy_texture);
+	Walker *w = new Walker(80, FLOOR, 32, 64, walker_texture);
 	entities.push_back(w);
 }
 
@@ -201,27 +201,51 @@ void Game::menu_input() {
 	}
 }
 
-void Game::check_colision(Entity *entity) {
-	if(player.x + entity->getW() <= player.w + entity->getW() &&
-	player.y + entity->getH() <= player.h + entity->getH()){
-		printf("Player hit!\n");
-		--player.hp;
-		if(player.hp == 0){
-			printf("Game Over\n");
-			exit(0);
-		}
-	}
+//Compares 2 destination rects and returns wheter theyre colliding
+bool Game::check_colision(const SDL_Rect *dst1, const SDL_Rect *dst2) {
+	const bool x_collision = ((dst1->x >= dst2->x) && (dst1->x < (dst2->x + dst2->w))) ||
+		((dst2->x > dst1->x) && (dst2->x < (dst1->x + dst1->w)));
+	const bool y_collision = ((dst1->y >= dst2->y) && (dst1->y < (dst2->y + dst2->h)))
+		|| ((dst2->y > dst1->y) & (dst2->y < (dst1->y + dst1->h)));
+	if(x_collision && y_collision) return true;
+	return false;
+}
+
+void Game::restart() {
+	for(unsigned long i = 0; i < entities.size(); ++i)
+		delete entities[i];
+	entities.resize(0);
+	this->player.setXY(3*screen_width/4, 840);
+	this->player.setHp(5);
+	this->screen = MAIN_MENU;
+	this->option = START;
 }
 
 void Game::loop() {
 	if(screen == RUNNNING){
 		player.update();
-		if(!(frame%15)){
-			entities[0]->process(player.x, player.y);
+		if(player_hit_cooldown) --player_hit_cooldown;
+		else SDL_SetTextureColorMod(player_texture, 255, 255, 255);
+		if(!(frame%30)){
+			for(unsigned long i = 0; i < entities.size(); ++i){
+				entities[i]->process(player.x, player.y);
+			}
 		}
-		if(!(frame%3))
-			entities[0]->update();
-		check_colision(entities[0]);
+		if(!(frame%4)){
+			for(unsigned long i = 0; i < entities.size(); ++i){
+				entities[i]->update();
+				if(player_hit_cooldown == 0 && 
+					check_colision(entities[i]->getDst(), &player.dst)){
+
+					--player.hp;
+					if(!player.hp) restart();
+					else player_hit_cooldown = 30;
+					SDL_SetTextureColorMod(player_texture, 200, 0 ,128);
+					return;
+
+				}
+			}
+		}
 	}
 }
 
@@ -232,7 +256,28 @@ void Game::process() {
 				screen = PAUSED;
 				option = START;
 				change_chosen(resume_texture);
-			}else player.input();
+			}else{
+				player_action = player.input();
+				if(player_action == ATTACKING){
+					switch(player.direction){
+						case UP:{
+							for(ul i = 0; i < entities.size(); ++i){
+								if(check_colision(NULL,NULL)){
+									entities[i]->take_damage(player.get_damage());
+								}
+							}
+						}break;
+						case RIGHT:{
+						}break;
+						case LEFT:{
+						}break;
+						case DOWN:{
+						}break;
+						default:
+						break;
+					}
+				}
+			}
 		}break;
 		default:
 			menu_input();
@@ -246,7 +291,8 @@ void Game::render() {
 
 	switch(screen){
 		case RUNNNING:{
-			entities[0]->draw(renderer);
+			for(unsigned long i = 0; i < entities.size(); ++i)
+				entities[i]->draw(renderer);
 			player.draw(renderer);
 		}break;
 		default:{
@@ -270,8 +316,8 @@ Game::~Game() {
 	SDL_DestroyTexture(quit_texture);
 	SDL_DestroyTexture(resume_texture);
 	SDL_DestroyTexture(main_menu_texture);
-	SDL_DestroyTexture(floor);
 	SDL_DestroyTexture(background_texture);
+	SDL_DestroyTexture(walker_texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
