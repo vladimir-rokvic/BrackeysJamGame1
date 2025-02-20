@@ -5,15 +5,15 @@
 
 #include "animation.hpp"
 
+#define FLOOR 840
+#define GRAVITY 1
+#define PLAYER_SPEED 6
+
 //player look direction enum
 enum PlayingAnimation {NO_ANIMATION, ATTACK};
 enum PlayerAction {STANDING, IN_AIR};
 class Player {
 private:
-	//for hitboxes
-	int x,y;
-	int w,h;
-
 	//Rect of the source texture
 	SDL_Rect src;
 	SDL_Rect dst;
@@ -54,6 +54,10 @@ public:
 	void setY(int num);
 	void setX(int num);
 	void setXY(int x, int y);
+	Uint8 hp;
+	//for hitboxes
+	int x,y;
+	int w,h;
 };
 
 #endif // !PLAYER_H

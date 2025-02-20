@@ -97,7 +97,14 @@ Game::Game() {
 	}
 
 	//LOADING ENEMY TEXTURE
-	
+	SDL_Texture *enemy_texture = IMG_LoadTexture(renderer, "assets/walker.png");
+	if(!enemy_texture){
+		ERROR("Error loading walker texture", IMG_GetError());
+		exit(-1);
+	}
+
+	Walker *w = new Walker(80, FLOOR, 32, 64, enemy_texture);
+	entities.push_back(w);
 }
 
 void Game::draw_menu() {
@@ -194,9 +201,28 @@ void Game::menu_input() {
 	}
 }
 
+void Game::check_colision(Entity *entity) {
+	if(player.x + entity->getW() <= player.w + entity->getW() &&
+	player.y + entity->getH() <= player.h + entity->getH()){
+		printf("Player hit!\n");
+		--player.hp;
+		if(player.hp == 0){
+			printf("Game Over\n");
+			exit(0);
+		}
+	}
+}
+
 void Game::loop() {
-	if(screen == RUNNNING)
+	if(screen == RUNNNING){
 		player.update();
+		if(!(frame%15)){
+			entities[0]->process(player.x, player.y);
+		}
+		if(!(frame%3))
+			entities[0]->update();
+		check_colision(entities[0]);
+	}
 }
 
 void Game::process() {
@@ -220,6 +246,7 @@ void Game::render() {
 
 	switch(screen){
 		case RUNNNING:{
+			entities[0]->draw(renderer);
 			player.draw(renderer);
 		}break;
 		default:{
@@ -228,10 +255,12 @@ void Game::render() {
 	}
 
 	SDL_RenderPresent(renderer);
+	++frame;
+	frame = (frame >= 61)? 0:frame;
 }
 
 Game::~Game() {
-	for(int i=0; i< entities.size(); ++i)
+	for(unsigned long i = 0;i < entities.size();++i)
 		delete entities[i];
 
 	Mix_Quit();

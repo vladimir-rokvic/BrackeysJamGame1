@@ -42,8 +42,11 @@ private:
 	void draw_menu();
 	void change_chosen(SDL_Texture *texture);
 	void menu_input();
+	void check_colision(Entity*);
+	Entity* spawn_entity();
 
 	std::vector<Entity *> entities;
+	Uint32 frame;
 
 public:
 	bool run;

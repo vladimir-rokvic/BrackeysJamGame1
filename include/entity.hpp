@@ -15,6 +15,7 @@ protected:
 	//Entity positions in real coordinates
 	int x, y;
 	int w, h;
+	int hspeed, vspeed;
 
 	//Rects to give to SDL_RenderCopy
 	SDL_Rect src, dst;
@@ -22,21 +23,29 @@ protected:
 	SDL_Texture *texture;
 
 public:
-	virtual void move();
-	virtual void draw(SDL_Renderer *renderer);
-	Entity(int x, int y, int w, int h, SDL_Texture *texture);
-	~Entity();
-	SDL_Texture* getTexture() const;
+	//The players x and y coordinates
+	virtual void process(const int x, const int y) {};
+	virtual void update() {};
+	virtual void draw(SDL_Renderer *renderer) {};
+	int getX() const;
+	int getY() const;
+	int getW() const;
+	int getH() const;
+	Entity(const int x, const int y, const int w, const int h, SDL_Texture *texture);
+	virtual ~Entity();
 };
 
-class Walker: Entity {
-	//Animation walk;
-	Walker(int x, int y, int w, int h, SDL_Texture* texture);
+class Walker: public Entity {
+	Animation walk;
+	Uint8 hp;
+	int goal_x;
 	//walking frame
 	Uint8 frame;
 public:
-	void move();
+	Walker(int x, int y, int w, int h, SDL_Texture* texture);
+	void update();
 	void draw(SDL_Renderer *renderer);
+	void process(const int x, const int y);
 };
 
 #endif // !ENTITY_H

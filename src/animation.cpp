@@ -13,7 +13,7 @@ Animation::Animation(int x, int y, int w, int h, Uint8 num_f, Uint8 d):
 
 Uint8 Animation::play(SDL_Renderer *renderer, SDL_Texture *texture,
 					  SDL_Rect dst, const int x_offset, const int y_offset) {
-	frame++;
+	++frame;
 	if(frame >= frame_duration){
 		playing = true;
 		frame_rect.x = iter * frame_rect.w;
@@ -32,5 +32,11 @@ Uint8 Animation::play(SDL_Renderer *renderer, SDL_Texture *texture,
 	return playing;
 }
 
-void Animation::loop_play(SDL_Renderer *renderer){
+void Animation::loop_play(SDL_Renderer *renderer, SDL_Texture *texture,SDL_Rect dst){
+	++frame;
+	frame = (frame >= duration)? 0:frame;
+	frame_rect.x = frame/frame_duration * frame_rect.w;
+	dst.h = frame_rect.h * 2;
+	dst.w = frame_rect.w * 2;
+	SDL_RenderCopy(renderer, texture, &frame_rect, &dst);
 }
