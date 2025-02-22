@@ -43,6 +43,7 @@ Player::Player():
 
 	keys = SDL_GetKeyboardState(NULL);
 	memset(this->items, 0, 13*4);
+	this->coins = 0;
 
 	this->hp = 5;
 }

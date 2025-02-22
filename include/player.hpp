@@ -58,6 +58,7 @@ public:
 	//for hitboxes
 	int x,y;
 	int w,h;
+	Uint32 coins;
 	SDL_Rect dst;
 	//The direction of where the player is looking
 	PlayerDirection direction;

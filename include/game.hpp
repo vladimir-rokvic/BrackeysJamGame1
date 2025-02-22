@@ -14,7 +14,7 @@
 
 #define ERROR(string, error_type) fprintf(stderr, "%s, %s\n", string, error_type)
 
-enum GameScreen {MAIN_MENU, PAUSED, RUNNNING, SCREEN_OPTIONS};
+enum GameScreen {MAIN_MENU, PAUSED, RUNNING, RUNNING_SHOP, SCREEN_OPTIONS};
 enum MenuOption {START, OPTIONS, QUIT};
 
 typedef unsigned long ul;
@@ -41,18 +41,24 @@ private:
 	SDL_Texture *main_menu_texture;
 	SDL_Texture *background_texture;
 	SDL_Texture *walker_texture;
+	SDL_Texture *shop_texture;
+	SDL_Texture *shop_row_texture;
 
+	void draw_shop();
 	void draw_menu();
 	void change_chosen(SDL_Texture *texture);
 	void menu_input();
 	bool check_colision(const SDL_Rect *, const SDL_Rect *);
-	Entity* spawn_entity();
+	void spawn_entity();
 	void restart();
 
 	std::vector<Entity *> entities;
 	Uint32 frame;
 	Uint32 player_hit_cooldown;
 	PlayerAction player_action;
+
+	Uint32 max_enemies;
+	Uint32 number_spawned;
 public:
 	bool run;
 	Game();

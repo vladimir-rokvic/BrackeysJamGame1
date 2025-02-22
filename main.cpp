@@ -10,7 +10,7 @@ int main(int argc, char* argv[]){
 	//Uint32 end, start = SDL_GetTicks();
 	//For capping the framerate to ~60
 	Uint32 frame_start, frame_end;
-	Uint32 frame = 0;
+	//Uint32 frame = 0;
 	while(game.run){
 		frame_start = SDL_GetTicks();
 
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]){
 			}
 		game.loop();
 		game.render();
-		++frame;
+		//++frame;
 
 		frame_end = SDL_GetTicks();
 		if(frame_end - frame_start < FRAME_DURATION){
