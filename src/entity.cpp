@@ -41,8 +41,8 @@ Walker::Walker(const int x, const int y, const int w, const int h, SDL_Texture *
 
 void Walker::process(const int x, const int y) {
 	if(x < this->x)
-		hspeed = -5;
-	else hspeed = 5;
+		hspeed = -3;
+	else hspeed = 3;
 }
 
 void Walker::update() {

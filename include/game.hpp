@@ -50,6 +50,11 @@ private:
 	SDL_Texture *text_texture;
 	SDL_Texture *items_texture;
 	SDL_Texture *altar_texture;
+	SDL_Texture *hp_texture;
+
+	int star_cooldown;
+
+	SDL_Rect altar_dst;
 
 	void draw_shop();
 	void draw_menu();
@@ -60,6 +65,8 @@ private:
 	void restart();
 	void render_text(std::string, int x, int y);
 	void generate_shop();
+	void win();
+	void draw_altar();
 
 	int num_tickets;
 
@@ -70,6 +77,8 @@ private:
 
 	Item max_item[13];
 	Item *item_shop[4];
+
+	int seconds;
 
 	Uint8 shop_option;
 

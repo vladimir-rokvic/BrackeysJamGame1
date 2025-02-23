@@ -11,7 +11,7 @@
 
 //player look direction enum
 enum PlayingAnimation {NO_ANIMATION, ATTACK};
-enum PlayerAction {ATTACKING, WALKING};
+enum PlayerAction {ATTACKING, WALKING, STAR};
 class Player {
 private:
 	//Rect of the source texture
@@ -21,6 +21,7 @@ private:
 
 	int attack_cooldown;
 	int num_jumps;
+	int max_hp;
 
 	//keypresses
 	const Uint8 *keys;
@@ -53,7 +54,11 @@ public:
 	void setHp(int hp);
 	void setHpTexture(SDL_Texture *texture);
 	int get_damage();
+	void heal();
+	Uint32 get_star_dmg();
 	void restart();
+	void recieve_coins();
+	void generate_income();
 	Uint32* getItems();
 	Uint8 hp;
 	//for hitboxes

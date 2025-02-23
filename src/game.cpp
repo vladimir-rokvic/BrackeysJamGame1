@@ -1,6 +1,8 @@
 #include "game.hpp"
 #include "item.hpp"
+#include "player.hpp"
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_timer.h>
 #include <random>
 
 Game::Game() {
@@ -135,6 +137,11 @@ Game::Game() {
 		run = false;
 	}
 
+	this->altar_dst = {screen_width/2 - 32, FLOOR + 32, 64, 96};
+
+	hp_texture = IMG_LoadTexture(renderer, "assets/hp.png");
+	player.setHpTexture(hp_texture);
+
 	max_item[0].title = "RED DICE";
 	max_item[0].description = "Gives crit chance";
 	max_item[0].src = {0, 0, 32, 32};
@@ -203,10 +210,12 @@ Game::Game() {
 	shop_option = 0;
 	generate_shop();
 
+	this->star_cooldown = 0;
 	this->player_hit_cooldown = 0;
-	this->max_enemies = 13;
+	this->max_enemies = 7;
 	this->number_spawned = 0;
 	this->num_tickets = 0;
+	this->seconds = 0;
 }
 
 std::random_device rd;
@@ -276,6 +285,7 @@ void Game::draw_shop() {
 		render_text(item_shop[i]->title, dst.x, dst.y + 70);
 		render_text(item_shop[i]->description, dst.x + 70, dst.y + 15);
 	}
+	render_text("Coins:" + std::to_string(player.coins), 400, 600);
 	SDL_RenderSetViewport(renderer, NULL);
 }
 
@@ -360,7 +370,6 @@ void Game::menu_input() {
 		else if(keys[SDL_SCANCODE_RETURN]){
 			switch(option){
 				case START:{
-					//screen = RUNNING;
 					screen = RUNNING_SHOP;
 				}break;
 				case OPTIONS:{
@@ -400,6 +409,8 @@ void Game::restart() {
 	this->player.restart();
 	this->screen = MAIN_MENU;
 	this->option = START;
+	this->number_spawned = 0;
+	change_chosen(start_texture);
 	this->num_tickets = 0;
 }
 
@@ -414,7 +425,7 @@ void Game::loop() {
 				entities[i]->process(player.x, player.y);
 			}
 		}
-		if(!(frame%4)){
+		if(!(frame%5)){
 			for(ul i = 0; i < entities.size(); ++i){
 				entities[i]->update();
 				if(player_hit_cooldown == 0 && 
@@ -424,10 +435,21 @@ void Game::loop() {
 					if(!player.hp) restart();
 					else player_hit_cooldown = 30;
 					SDL_SetTextureColorMod(player_texture, 200, 0 ,128);
+					Uint32 *items = player.getItems();
+					if(items[DREAM_CATCHER]){
+						for(ul i = 0; i < entities.size(); ++i)
+							if(entities[i]->take_damage(items[DREAM_CATCHER]*10)){
+								number_spawned--;
+								entities.erase(entities.begin() + i);
+								player.recieve_coins();
+							}
+					}
 					return;
 				}
 			}
 		}
+		if(!(frame%12))
+			player.generate_income();
 	}
 }
 
@@ -438,6 +460,17 @@ void Game::process() {
 				screen = PAUSED;
 				option = START;
 				change_chosen(resume_texture);
+			}else if(keys[SDL_SCANCODE_S] && star_cooldown == 0){
+				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+				SDL_RenderClear(renderer);
+				SDL_Delay(200);
+				Uint32 dmg = player.get_star_dmg();
+				for(ul i = 0; i < entities.size(); ++i)
+					if(entities[i]->take_damage(dmg)){
+						number_spawned--;
+						entities.erase(entities.begin() + i);
+						player.recieve_coins();
+					}
 			}else{
 				//PROCCESING ATTACK
 				if(player.input() == ATTACKING){
@@ -452,8 +485,9 @@ void Game::process() {
 							for(ul i = 0; i < entities.size(); ++i){
 								if(check_colision(entities[i]->getDst(), &dst)){
 									if(entities[i]->take_damage(player.get_damage())){
+										number_spawned--;
 										entities.erase(entities.begin() + i);
-										player.coins+=10;
+										player.recieve_coins();
 									}
 									break;
 								}
@@ -469,8 +503,9 @@ void Game::process() {
 							for(ul i = 0; i < entities.size(); ++i){
 								if(check_colision(&dst, entities[i]->getDst())){
 									if(entities[i]->take_damage(player.get_damage())){
+										number_spawned--;
 										entities.erase(entities.begin() + i);
-										player.coins+=10;
+										player.recieve_coins();
 									}
 									player.hspeed = -10;
 									break;
@@ -487,8 +522,9 @@ void Game::process() {
 							for(ul i = 0; i < entities.size(); ++i){
 								if(check_colision(entities[i]->getDst(), &dst)){
 									if(entities[i]->take_damage(player.get_damage())){
+										number_spawned--;
 										entities.erase(entities.begin() + i);
-										player.coins+=10;
+										player.recieve_coins();
 									}
 									player.hspeed = 10;
 									break;
@@ -505,10 +541,11 @@ void Game::process() {
 							for(ul i = 0; i < entities.size(); ++i){
 								if(check_colision(entities[i]->getDst(), &dst)){
 									if(entities[i]->take_damage(player.get_damage())){
+										number_spawned--;
 										entities.erase(entities.begin() + i);
-										player.coins+=10;
+										player.recieve_coins();
 									}
-									player.vspeed = -10;
+									player.vspeed = -20;
 									break;
 								}
 							}
@@ -529,11 +566,36 @@ void Game::process() {
 				shop_option += (shop_option > 0)? -1:0;
 			if(keys[SDL_SCANCODE_DOWN])
 				shop_option += (shop_option < 3)? 1:0;
+			if(keys[SDL_SCANCODE_RETURN]){
+				screen = RUNNING;
+				Uint32 *items = player.getItems();
+				player.coins -= 50-items[EVIL_EYE]*10;
+				if(item_shop[shop_option]->tag == WINNING_TICKET){
+					num_tickets++;
+					if(num_tickets >= 5) win();
+					return;
+				}
+				items[item_shop[shop_option]->tag]++;
+				if(items[LUCKY_DIE] > 6) items[LUCKY_DIE] = 6;
+				player.heal();
+				generate_shop();
+			}
 		}break;
 		default:
 			menu_input();
 		break;
 	}
+}
+
+void Game::win() {
+	screen = MAIN_MENU;
+	restart();
+	change_chosen(start_texture);
+}
+
+void Game::draw_altar() {
+	SDL_Rect src = {0,0,32,48};
+	SDL_RenderCopy(renderer, altar_texture, &src, &altar_dst);
 }
 
 void Game::render() {
@@ -546,6 +608,7 @@ void Game::render() {
 				entities[i]->draw(renderer);
 			player.draw(renderer);
 			player.draw_hud(renderer);
+			draw_altar();
 		}break;
 		case RUNNING_SHOP:{
 			draw_shop();
@@ -557,7 +620,10 @@ void Game::render() {
 
 	SDL_RenderPresent(renderer);
 	++frame;
-	frame = (frame >= 61)? 0:frame;
+	if(frame >= 61){
+		frame = 0;
+		++seconds;
+	}
 }
 
 Game::~Game() {
@@ -578,6 +644,7 @@ Game::~Game() {
 	SDL_DestroyTexture(text_texture);
 	SDL_DestroyTexture(items_texture);
 	SDL_DestroyTexture(altar_texture);
+	SDL_DestroyTexture(hp_texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
