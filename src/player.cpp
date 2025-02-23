@@ -48,6 +48,15 @@ Player::Player():
 	this->hp = 5;
 }
 
+Uint32* Player::getItems(){
+	return items;
+}
+
+void Player::restart() {
+	memset(this->items, 0, 13*4);
+	this->coins = 0;
+}
+
 void Player::draw(SDL_Renderer *renderer) {
 	dst.x = x;
 	dst.y = y;
@@ -87,6 +96,25 @@ void Player::draw(SDL_Renderer *renderer) {
 			}
 		}break;
 	}
+}
+
+void Player::draw_hud(SDL_Renderer *renderer){
+	SDL_Rect src = {0, 0, 32, 32};
+	SDL_Rect dst = {30, 30, 32, 32};
+	int i = 0;
+	for(;i<5;++i){
+		dst.x += 42;
+		SDL_RenderCopy(renderer, hp_texture, &src, &dst);
+	}
+	src.x = 32;
+	for(;i<hp;++i){
+		dst.x += 42;
+		SDL_RenderCopy(renderer, hp_texture, &src, &dst);
+	}
+}
+
+void Player::setHpTexture(SDL_Texture *texture){
+	this->hp_texture = texture;
 }
 
 PlayerAction Player::input() {
@@ -130,7 +158,7 @@ void Player::update() {
 		this->vspeed -= GRAVITY;
 	}else{
 		this->y = FLOOR;
-		this->num_jumps = 1 + this->items[LADY_BUG];
+		this->num_jumps = 1 + (items[LADY_BUG] >= 1);
 	}
 
 	this->x += hspeed;

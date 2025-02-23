@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include "item.hpp"
 #include <SDL2/SDL_image.h>
 #include <random>
 
@@ -116,21 +117,166 @@ Game::Game() {
 		run = false;
 	}
 
+	text_texture = IMG_LoadTexture(renderer, "assets/text.png");
+	if(!text_texture) {
+		ERROR("Error loading the text texture", IMG_GetError());
+		run = false;
+	}
+
+	items_texture = IMG_LoadTexture(renderer, "assets/item_sheet.png");
+	if(!items_texture) {
+		ERROR("Error loading the item sheet texture", IMG_GetError());
+		run = false;
+	}
+
+	altar_texture = IMG_LoadTexture(renderer, "assets/altar.png");
+	if(!altar_texture) {
+		ERROR("Error loading the altar texture", IMG_GetError());
+		run = false;
+	}
+
+	max_item[0].title = "RED DICE";
+	max_item[0].description = "Gives crit chance";
+	max_item[0].src = {0, 0, 32, 32};
+	max_item[0].tag = LUCKY_DIE;
+
+	max_item[1].title = "DREAM CATCHER";
+	max_item[1].description = "Deals return damage to enemies";
+	max_item[1].src = {32, 0, 32, 32};
+	max_item[1].tag = DREAM_CATCHER;
+
+	max_item[2].title = "RABBIT FOOT";
+	max_item[2].description = "Gives movement speed";
+	max_item[2].src = {64, 0, 32, 32};
+	max_item[2].tag = RABBITS_FOOT;
+
+	max_item[3].title = "LADY BUG";
+	max_item[3].description = "Gives double jump and \ndamage to enemies below";
+	max_item[3].src = {96, 0, 32, 32};
+	max_item[3].tag = LADY_BUG;
+	
+	max_item[4].title = "ACORN HELMET";
+	max_item[4].description = "Gives +1 max hp";
+	max_item[4].src = {128, 0, 32, 32};
+	max_item[4].tag = ACORN_HELMET;
+
+	max_item[5].title = "GOLD COIN";
+	max_item[5].description = "Gives more coins";
+	max_item[5].src = {160, 0, 32, 32};
+	max_item[5].tag = LUCKY_COIN;
+
+	max_item[6].title = "HORSESHOE";
+	max_item[6].description = "Gives crit damage";
+	max_item[6].src = {192, 0, 32, 32};
+	max_item[6].tag = HORSESHOE;
+
+	max_item[7].title = "EVIL EYE OF THE MARKET";
+	max_item[7].description = "Discounts the shop";
+	max_item[7].src = {224, 0, 32, 32};
+	max_item[7].tag = EVIL_EYE;
+
+	max_item[8].title = "GOLDEN CAT";
+	max_item[8].description = "Deal more damge based on coins";
+	max_item[8].src = {256, 0, 32, 32};
+	max_item[8].tag = LUCKY_CAT;
+
+	max_item[9].title = "WISHBONE";
+	max_item[9].description = "Deal more base damage";
+	max_item[9].src = {288, 0, 32, 32};
+	max_item[9].tag = WISHBONE;
+
+	max_item[10].title = "GOLD FISH";
+	max_item[10].description = "Generate passive income";
+	max_item[10].src = {320, 0, 32, 32};
+	max_item[10].tag = GOLDFISH;
+
+	max_item[11].title = "WINNING TICKET";
+	max_item[11].description = "Get 5 in order to win";
+	max_item[11].src = {352, 0, 32, 32};
+	max_item[11].tag = WINNING_TICKET;
+
+	max_item[12].title = "FALLING STAR";
+	max_item[12].description = "Press S to slam into the ground";
+	max_item[12].src = {384, 0, 32, 32};
+	max_item[12].tag = FALLING_STAR;
+
+	shop_option = 0;
+	generate_shop();
+
 	this->player_hit_cooldown = 0;
 	this->max_enemies = 13;
 	this->number_spawned = 0;
+	this->num_tickets = 0;
+}
+
+std::random_device rd;
+std::default_random_engine gen(rd());
+std::uniform_int_distribution<> d(80, 1720);
+
+std::default_random_engine sh_gen(rd());
+std::uniform_int_distribution<> sd(1, 13);
+
+void Game::generate_shop() {
+	for(int i=0;i<4;++i)
+		item_shop[i] = &max_item[d(gen) % 13];
+}
+
+void Game::render_text(std::string s, int x, int y) {
+	SDL_Rect dst = {x, y, 16, 16};
+	SDL_Rect src = {0, 0, 16, 16};
+	int m = 0;
+	for(ul i=0;i<s.size();++i){
+		dst.x = 16*m + x;
+		if(s[i] == ' '){
+			m++;
+			continue;
+		}
+		if(s[i] == '\n'){
+			m = 0;
+			dst.y += 20;
+			continue;
+		}
+		if(s[i] <= '9'){
+			src.y = 32;
+			src.x = 16*(s[i] - '0');
+		}else if(s[i] <= 'Z'){
+			src.x = 16*(s[i] - 'A');
+			src.y = 16;
+		}else{
+			src.y = 0;
+			src.x = 16*(s[i] - 'a');
+		}
+		++m;
+		SDL_RenderCopy(renderer, text_texture, &src, &dst);
+	}
 }
 
 void Game::draw_shop() {
-	SDL_Rect dst = {screen_width/2 - 315, screen_height/2 - 270, 630, 540};
+	SDL_Rect dst = {screen_width/2 - 415, screen_height/2 - 270, 730, 640};
 	SDL_RenderSetViewport(renderer, &dst);
 	SDL_RenderCopy(renderer, shop_texture, NULL, NULL);
 
-	const SDL_Rect src = {0, 0, 540, 85};
+	SDL_Rect src = {0, 0, 540, 85};
+	dst = {54, 115 + 54, 620, 105};
 	for(int i=0; i<4; ++i){
-		dst = {20 + 34, i*(85+10) + 54, 520, 85};
+		dst.y = i*115 + 54;
 		SDL_RenderCopy(renderer, shop_row_texture, &src, &dst);
 	}
+
+	src = {0, 85, 540, 85};
+	dst = {54, shop_option*115 + 54, 620, 105};
+	SDL_RenderCopy(renderer, shop_row_texture, &src, &dst);
+
+	dst.x = 74;
+	dst.w = 64;
+	dst.h = 64;
+	for(int i=0; i<4; ++i){
+		dst.y = i*120 + 54;
+		SDL_RenderCopy(renderer, items_texture, &item_shop[i]->src, &dst);
+		render_text(item_shop[i]->title, dst.x, dst.y + 70);
+		render_text(item_shop[i]->description, dst.x + 70, dst.y + 15);
+	}
+	SDL_RenderSetViewport(renderer, NULL);
 }
 
 void Game::draw_menu() {
@@ -171,6 +317,7 @@ void Game::menu_input() {
 			}else{
 				screen = MAIN_MENU;
 				option = START;
+				restart();
 				change_chosen(start_texture);
 			}
 		}
@@ -213,8 +360,7 @@ void Game::menu_input() {
 		else if(keys[SDL_SCANCODE_RETURN]){
 			switch(option){
 				case START:{
-					//TODO: Change back later to a normal running loop
-					//screen = RUNNING
+					//screen = RUNNING;
 					screen = RUNNING_SHOP;
 				}break;
 				case OPTIONS:{
@@ -239,10 +385,6 @@ bool Game::check_colision(const SDL_Rect *dst1, const SDL_Rect *dst2) {
 	return false;
 }
 
-std::random_device rd;
-std::default_random_engine gen(rd());
-std::uniform_int_distribution<> d(80, 1720);
-
 void Game::spawn_entity() {
 	Walker *w = new Walker(d(gen), FLOOR, 32, 64, walker_texture);
 	entities.push_back(w);
@@ -255,8 +397,10 @@ void Game::restart() {
 	entities.resize(0);
 	this->player.setXY(3*screen_width/4, 840);
 	this->player.setHp(5);
+	this->player.restart();
 	this->screen = MAIN_MENU;
 	this->option = START;
+	this->num_tickets = 0;
 }
 
 void Game::loop() {
@@ -328,6 +472,7 @@ void Game::process() {
 										entities.erase(entities.begin() + i);
 										player.coins+=10;
 									}
+									player.hspeed = -10;
 									break;
 								}
 							}
@@ -345,6 +490,7 @@ void Game::process() {
 										entities.erase(entities.begin() + i);
 										player.coins+=10;
 									}
+									player.hspeed = 10;
 									break;
 								}
 							}
@@ -362,6 +508,7 @@ void Game::process() {
 										entities.erase(entities.begin() + i);
 										player.coins+=10;
 									}
+									player.vspeed = -10;
 									break;
 								}
 							}
@@ -371,6 +518,17 @@ void Game::process() {
 					}
 				}
 			}
+		}break;
+		case RUNNING_SHOP:{
+			if(keys[SDL_SCANCODE_ESCAPE]){
+				screen = PAUSED;
+				change_chosen(resume_texture);
+				return;
+			}
+			if(keys[SDL_SCANCODE_UP])
+				shop_option += (shop_option > 0)? -1:0;
+			if(keys[SDL_SCANCODE_DOWN])
+				shop_option += (shop_option < 3)? 1:0;
 		}break;
 		default:
 			menu_input();
@@ -387,6 +545,7 @@ void Game::render() {
 			for(ul i = 0; i < entities.size(); ++i)
 				entities[i]->draw(renderer);
 			player.draw(renderer);
+			player.draw_hud(renderer);
 		}break;
 		case RUNNING_SHOP:{
 			draw_shop();
@@ -414,6 +573,11 @@ Game::~Game() {
 	SDL_DestroyTexture(main_menu_texture);
 	SDL_DestroyTexture(background_texture);
 	SDL_DestroyTexture(walker_texture);
+	SDL_DestroyTexture(shop_texture);
+	SDL_DestroyTexture(shop_row_texture);
+	SDL_DestroyTexture(text_texture);
+	SDL_DestroyTexture(items_texture);
+	SDL_DestroyTexture(altar_texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

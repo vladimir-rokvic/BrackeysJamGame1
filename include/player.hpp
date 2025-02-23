@@ -17,6 +17,7 @@ private:
 	//Rect of the source texture
 	SDL_Rect src;
 	SDL_Texture *texture;
+	SDL_Texture *hp_texture;
 
 	int attack_cooldown;
 	int num_jumps;
@@ -27,10 +28,6 @@ private:
 	bool pressed_attack;
 
 	Uint32 items[13];
-
-	//movement velocity
-	int hspeed;
-	int vspeed;
 
 	PlayerAction action;
 
@@ -45,6 +42,7 @@ public:
 	Player(int x, int y, SDL_Texture *texture);
 	~Player();
 	void draw(SDL_Renderer *renderer);
+	void draw_hud(SDL_Renderer *renderer);
 	PlayerAction input();
 	void update();
 	void animate_attack(SDL_Renderer *renderer);
@@ -53,11 +51,17 @@ public:
 	void setX(int num);
 	void setXY(int x, int y);
 	void setHp(int hp);
+	void setHpTexture(SDL_Texture *texture);
 	int get_damage();
+	void restart();
+	Uint32* getItems();
 	Uint8 hp;
 	//for hitboxes
 	int x,y;
 	int w,h;
+	//movement velocity
+	int hspeed;
+	int vspeed;
 	Uint32 coins;
 	SDL_Rect dst;
 	//The direction of where the player is looking
