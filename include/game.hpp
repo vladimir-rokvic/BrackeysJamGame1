@@ -51,8 +51,11 @@ private:
 	SDL_Texture *items_texture;
 	SDL_Texture *altar_texture;
 	SDL_Texture *hp_texture;
+	SDL_Texture *c_texture;
 
 	int star_cooldown;
+	Uint32 iter;
+	int enemy_spawn_hp;
 
 	SDL_Rect altar_dst;
 

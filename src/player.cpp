@@ -2,6 +2,7 @@
 #include "animation.hpp"
 #include "item.hpp"
 #include <SDL2/SDL_stdinc.h>
+#include <cstdio>
 #include <random>
 
 Player::Player():
@@ -38,7 +39,7 @@ Player::Player():
 	this->attack_cooldown = 0;
 	this->pressed_attack = false;
 	this->pressed_jump = false;
-	this->num_jumps = 1;
+	this->num_jumps = 2;
 
 	this->direction = NONE;
 	this->playing_animation = NO_ANIMATION;
@@ -224,7 +225,7 @@ std::default_random_engine rd_gen(rd_rd());
 std::uniform_int_distribution<> rd_d(1, 6);
 
 int Player::get_damage() {
-	Uint32 dmg = 10*items[WISHBONE];
+	Uint32 dmg = 10 + (10*items[WISHBONE]);
 	if(y <= FLOOR) dmg += 15*items[LADY_BUG];
 	if(items[LUCKY_CAT]) dmg += coins*0.15*items[LUCKY_CAT];
 	if(!(rd_d(rd_gen) % (7-items[LUCKY_DIE]))){

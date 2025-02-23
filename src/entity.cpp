@@ -30,13 +30,14 @@ SDL_Rect* Entity::getDst() {
 	return &dst;
 }
 
-Walker::Walker(const int x, const int y, const int w, const int h, SDL_Texture *texture):
+Walker::Walker(const int x, const int y, const int w, const int h,
+			   const int hp, SDL_Texture *texture):
 	Entity(x, y, w, h, texture),
 	walk(0, 0, w, h, 2, 60){
 	this->frame = 1;
 	this->hspeed = 0;
 	this->vspeed = 0;
-	this->hp = 30;
+	this->hp = hp;
 }
 
 void Walker::process(const int x, const int y) {

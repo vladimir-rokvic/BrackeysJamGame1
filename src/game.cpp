@@ -137,6 +137,12 @@ Game::Game() {
 		run = false;
 	}
 
+	c_texture = IMG_LoadTexture(renderer, "assets/C.png");
+	if(!altar_texture) {
+		ERROR("Error loading the C texture", IMG_GetError());
+		run = false;
+	}
+
 	this->altar_dst = {screen_width/2 - 32, FLOOR + 32, 64, 96};
 
 	hp_texture = IMG_LoadTexture(renderer, "assets/hp.png");
@@ -210,12 +216,14 @@ Game::Game() {
 	shop_option = 0;
 	generate_shop();
 
+	this->iter = 0;
 	this->star_cooldown = 0;
 	this->player_hit_cooldown = 0;
 	this->max_enemies = 7;
 	this->number_spawned = 0;
 	this->num_tickets = 0;
 	this->seconds = 0;
+	this->enemy_spawn_hp = 30;
 }
 
 std::random_device rd;
@@ -227,7 +235,7 @@ std::uniform_int_distribution<> sd(1, 13);
 
 void Game::generate_shop() {
 	for(int i=0;i<4;++i)
-		item_shop[i] = &max_item[d(gen) % 13];
+		item_shop[i] = &max_item[sd(sh_gen) % 13];
 }
 
 void Game::render_text(std::string s, int x, int y) {
@@ -395,7 +403,7 @@ bool Game::check_colision(const SDL_Rect *dst1, const SDL_Rect *dst2) {
 }
 
 void Game::spawn_entity() {
-	Walker *w = new Walker(d(gen), FLOOR, 32, 64, walker_texture);
+	Walker *w = new Walker(d(gen), FLOOR, 32, 64, enemy_spawn_hp, walker_texture);
 	entities.push_back(w);
 	++number_spawned;
 }
@@ -417,6 +425,7 @@ void Game::restart() {
 void Game::loop() {
 	if(screen == RUNNING){
 		player.update();
+		if(star_cooldown) --star_cooldown;
 		if(player_hit_cooldown) --player_hit_cooldown;
 		else SDL_SetTextureColorMod(player_texture, 255, 255, 255);
 		if(!frame && number_spawned < max_enemies) spawn_entity();
@@ -433,7 +442,7 @@ void Game::loop() {
 
 					--player.hp;
 					if(!player.hp) restart();
-					else player_hit_cooldown = 30;
+					else player_hit_cooldown = 60;
 					SDL_SetTextureColorMod(player_texture, 200, 0 ,128);
 					Uint32 *items = player.getItems();
 					if(items[DREAM_CATCHER]){
@@ -456,14 +465,20 @@ void Game::loop() {
 void Game::process() {
 	switch (screen) {
 		case RUNNING:{
+			if(keys[SDL_SCANCODE_C]){
+				if(check_colision(&player.dst, &altar_dst))
+					screen = RUNNING_SHOP;
+			}
 			if(keys[SDL_SCANCODE_ESCAPE]){
 				screen = PAUSED;
 				option = START;
 				change_chosen(resume_texture);
 			}else if(keys[SDL_SCANCODE_S] && star_cooldown == 0){
-				SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+				SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
 				SDL_RenderClear(renderer);
+				SDL_RenderPresent(renderer);
 				SDL_Delay(200);
+				star_cooldown = 60;
 				Uint32 dmg = player.get_star_dmg();
 				for(ul i = 0; i < entities.size(); ++i)
 					if(entities[i]->take_damage(dmg)){
@@ -489,7 +504,6 @@ void Game::process() {
 										entities.erase(entities.begin() + i);
 										player.recieve_coins();
 									}
-									break;
 								}
 							}
 						}break;
@@ -507,8 +521,6 @@ void Game::process() {
 										entities.erase(entities.begin() + i);
 										player.recieve_coins();
 									}
-									player.hspeed = -10;
-									break;
 								}
 							}
 						}break;
@@ -526,8 +538,6 @@ void Game::process() {
 										entities.erase(entities.begin() + i);
 										player.recieve_coins();
 									}
-									player.hspeed = 10;
-									break;
 								}
 							}
 						}break;
@@ -546,7 +556,6 @@ void Game::process() {
 										player.recieve_coins();
 									}
 									player.vspeed = -20;
-									break;
 								}
 							}
 						}break;
@@ -558,9 +567,7 @@ void Game::process() {
 		}break;
 		case RUNNING_SHOP:{
 			if(keys[SDL_SCANCODE_ESCAPE]){
-				screen = PAUSED;
-				change_chosen(resume_texture);
-				return;
+				screen = RUNNING;
 			}
 			if(keys[SDL_SCANCODE_UP])
 				shop_option += (shop_option > 0)? -1:0;
@@ -569,10 +576,12 @@ void Game::process() {
 			if(keys[SDL_SCANCODE_RETURN]){
 				screen = RUNNING;
 				Uint32 *items = player.getItems();
+				if(player.coins < 50 - items[EVIL_EYE]) return;
 				player.coins -= 50-items[EVIL_EYE]*10;
 				if(item_shop[shop_option]->tag == WINNING_TICKET){
 					num_tickets++;
 					if(num_tickets >= 5) win();
+					generate_shop();
 					return;
 				}
 				items[item_shop[shop_option]->tag]++;
@@ -604,11 +613,16 @@ void Game::render() {
 
 	switch(screen){
 		case RUNNING:{
-			for(ul i = 0; i < entities.size(); ++i)
+			for(ul i = 0; i < entities.size(); ++i){
 				entities[i]->draw(renderer);
+			}
 			player.draw(renderer);
 			player.draw_hud(renderer);
 			draw_altar();
+			if(check_colision(&player.dst, &altar_dst)){
+				SDL_Rect dst = {altar_dst.x, altar_dst.y-96, 64, 64};
+				SDL_RenderCopy(renderer, c_texture, NULL, &dst);
+			}
 		}break;
 		case RUNNING_SHOP:{
 			draw_shop();
@@ -623,6 +637,10 @@ void Game::render() {
 	if(frame >= 61){
 		frame = 0;
 		++seconds;
+		if(++iter == 10){
+			iter = 0;
+			enemy_spawn_hp *= 1.1;
+		}
 	}
 }
 

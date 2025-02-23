@@ -16,7 +16,7 @@ protected:
 	int x, y;
 	int w, h;
 	int hspeed, vspeed;
-	Uint8 hp;
+	int hp;
 
 	//Rects to give to SDL_RenderCopy
 	SDL_Rect src, dst;
@@ -44,7 +44,7 @@ class Walker: public Entity {
 	//walking frame
 	Uint8 frame;
 public:
-	Walker(int x, int y, int w, int h, SDL_Texture* texture);
+	Walker(int x, int y, int w, int h, int hp, SDL_Texture* texture);
 	void process(const int x, const int y);
 	void update();
 	void draw(SDL_Renderer *renderer);
