@@ -53,6 +53,8 @@ private:
 	SDL_Texture *hp_texture;
 	SDL_Texture *c_texture;
 
+	Mix_Music *music;
+
 	int star_cooldown;
 	Uint32 iter;
 	int enemy_spawn_hp;

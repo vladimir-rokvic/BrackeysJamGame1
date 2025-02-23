@@ -216,6 +216,14 @@ Game::Game() {
 	shop_option = 0;
 	generate_shop();
 
+	music = Mix_LoadMUS("assets/bad_song.wav");
+	if(!music){
+		ERROR("Failed to load music!", Mix_GetError());
+		run = false;
+	}
+	Mix_MasterVolume(1);
+	Mix_PlayMusic(music, 1000);
+
 	this->iter = 0;
 	this->star_cooldown = 0;
 	this->player_hit_cooldown = 0;
@@ -647,7 +655,7 @@ void Game::render() {
 Game::~Game() {
 	for(ul i = 0;i < entities.size();++i)
 		delete entities[i];
-
+	Mix_HaltMusic();
 	Mix_Quit();
 	IMG_Quit();
 	SDL_DestroyTexture(start_texture);
@@ -663,6 +671,7 @@ Game::~Game() {
 	SDL_DestroyTexture(items_texture);
 	SDL_DestroyTexture(altar_texture);
 	SDL_DestroyTexture(hp_texture);
+	Mix_FreeMusic(music);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
